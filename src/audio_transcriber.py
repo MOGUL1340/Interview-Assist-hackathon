@@ -7,8 +7,8 @@ import tempfile
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file (project root)
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # Initialize the OpenAI client
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))

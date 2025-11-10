@@ -1,0 +1,55 @@
+Job Title: Senior .NET Developer / Solution Architect
+Position: Senior .NET Developer - Fintech Platform
+Grade/Level: Senior
+
+Job Requirements and Responsibilities:
+
+We are seeking an experienced Senior .NET Developer to join our team and help build our new fintech platform. The ideal candidate will have strong technical leadership skills and the ability to step into an architect role.
+
+TECHNICAL REQUIREMENTS:
+
+• Strong proficiency in C# and .NET Core (.NET 6, 7, and 8)
+• Extensive experience with microservices architecture
+• Deep knowledge of Microsoft Azure cloud platform:
+  - Azure App Services
+  - Azure Functions
+  - Azure Service Bus
+  - Azure Cosmos DB
+• Experience with database technologies:
+  - SQL Server (primary)
+  - PostgreSQL
+• Strong RESTful API development experience
+• Experience building high-load, high-volume systems
+• Knowledge of CI/CD pipelines and Azure DevOps
+• Experience with DevOps practices and deployment automation
+
+ARCHITECTURE & DESIGN:
+
+• Experience designing and architecting microservices solutions
+• Proven track record of migrating monolithic applications to microservices architecture
+• Ability to design scalable, high-performance systems
+• Strong system design and architecture thinking
+
+LEADERSHIP & COLLABORATION:
+
+• Technical leadership experience with teams of 6-8 developers
+• Experience conducting code reviews and setting coding standards
+• Mentoring and coaching junior developers
+• Ability to provide technical guidance and direction
+
+EXPERIENCE:
+
+• Minimum 10+ years of professional software development experience
+• Experience working on different projects and architectures
+• Domain experience preferred:
+  - Fintech industry (highly preferred)
+  - E-commerce or high-transaction volume systems (acceptable alternative)
+
+INTERVIEW PROCESS:
+
+• Interview duration: 45 minutes
+• Will cover technical skills, architecture thinking, and problem-solving approach
+• May include a coding challenge
+
+This position offers an opportunity to work on cutting-edge fintech solutions, lead a talented development team, and play a key role in architectural decisions. We are looking for someone who can design solutions, not just implement them.
+

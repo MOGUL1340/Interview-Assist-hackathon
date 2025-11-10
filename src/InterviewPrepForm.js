@@ -7,11 +7,10 @@ function InterviewPrepForm({ onSubmit, setIsLoading }) {
     candidateResume: null,
     meetingRecording: null,
     meetingTranscript: '',
-    jobTitle: '',
     jobPosition: '',
     jobGrade: 'Senior',
     jobRequirements: '',
-    interviewDuration: 30,
+    interviewDuration: 60,
     useTranscript: false,
     includeCodeChallenges: false
   });
@@ -50,10 +49,6 @@ function InterviewPrepForm({ onSubmit, setIsLoading }) {
 
     if (formData.useTranscript && !formData.meetingTranscript.trim()) {
       newErrors.meetingTranscript = 'Meeting transcript is required';
-    }
-
-    if (!formData.jobTitle.trim()) {
-      newErrors.jobTitle = 'Job title is required';
     }
 
     if (!formData.jobPosition.trim()) {
@@ -98,10 +93,10 @@ function InterviewPrepForm({ onSubmit, setIsLoading }) {
           name: formData.candidateResume.name,
           content: resumeContent
         },
-        job_title: formData.jobTitle,
         job_position: formData.jobPosition,
         job_requirements: formData.jobRequirements,
-        interview_duration_minutes: parseInt(formData.interviewDuration)
+        interview_duration_minutes: parseInt(formData.interviewDuration),
+        include_code_challenges: formData.includeCodeChallenges
       };
 
       if (formData.useTranscript) {
@@ -244,20 +239,6 @@ function InterviewPrepForm({ onSubmit, setIsLoading }) {
           <h2>Job Information</h2>
 
           <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="jobTitle">Job Title:</label>
-              <input
-                type="text"
-                id="jobTitle"
-                name="jobTitle"
-                value={formData.jobTitle}
-                onChange={handleInputChange}
-                placeholder="QA Engineer"
-                required
-              />
-              {errors.jobTitle && <div className="error">{errors.jobTitle}</div>}
-            </div>
-
             <div className="form-group">
               <label htmlFor="jobGrade">Grade/Level:</label>
               <select

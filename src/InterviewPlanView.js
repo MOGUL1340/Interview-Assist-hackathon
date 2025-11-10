@@ -3,8 +3,23 @@ import './InterviewPlanView.css';
 
 function InterviewPlanView({ planData, onStartOver }) {
   const [activeTab, setActiveTab] = useState('overview');
+  const [expandedTopics, setExpandedTopics] = useState({});
+  const [expandedAnswers, setExpandedAnswers] = useState({});
+  const [expandedRubricTopics, setExpandedRubricTopics] = useState({});
 
   const { interview_plan, code_challenges, excel_file } = planData;
+
+  // Convert numeric priority to text
+  const getPriorityText = (priority) => {
+    if (!priority || priority === 'N/A') return 'N/A';
+    const numPriority = typeof priority === 'string' ? parseInt(priority) : priority;
+    if (isNaN(numPriority)) return 'N/A';
+    
+    if (numPriority >= 4) return 'High';
+    if (numPriority === 3) return 'Medium';
+    if (numPriority >= 1) return 'Low';
+    return 'N/A';
+  };
 
   const downloadExcel = () => {
     if (!excel_file || !excel_file.content) {
@@ -82,13 +97,32 @@ function InterviewPlanView({ planData, onStartOver }) {
               <div key={idx} className="topic-timeline-item">
                 <div className="topic-name">{topic.topic_name || 'Topic'}</div>
                 <div className="topic-time">{topic.allocated_time_minutes || '0'} min</div>
-                <div className="topic-priority">Priority: {topic.priority || 'N/A'}/5</div>
+                <div className="topic-priority">
+                  <span className="priority-label">Priority:</span>{' '}
+                  <span className={`priority-value priority-${getPriorityText(topic.priority).toLowerCase().replace('/', '-')}`}>
+                    {getPriorityText(topic.priority)}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
     );
+  };
+
+  const toggleTopic = (topicIdx) => {
+    setExpandedTopics(prev => ({
+      ...prev,
+      [topicIdx]: !prev[topicIdx]
+    }));
+  };
+
+  const toggleRubricTopic = (topicIdx) => {
+    setExpandedRubricTopics(prev => ({
+      ...prev,
+      [topicIdx]: !prev[topicIdx]
+    }));
   };
 
   const renderQuestions = () => {
@@ -107,44 +141,70 @@ function InterviewPlanView({ planData, onStartOver }) {
             return null;
           }
 
-          return (
-          <div key={topicIdx} className="topic-section">
-            <h3 className="topic-header">{topic.topic_name || topic.topic || 'Topic'}</h3>
-            {topic.rationale && <p className="topic-rationale">{topic.rationale}</p>}
+          const isExpanded = expandedTopics[topicIdx] || false;
+          const questionCount = topic.questions?.length || 0;
 
-            <div className="questions-list">
-              {topic.questions?.map((question, qIdx) => {
-                globalQuestionNumber++;
-                return (
-                <div key={qIdx} className="question-card">
-                  <div className="question-number">Q{globalQuestionNumber}</div>
-                  <div className="question-content">
-                    <div className="question-text">{question.question || 'No question'}</div>
-                    {question.what_to_look_for && (
-                      <div className="question-detail">
-                        <strong>What to look for:</strong> {question.what_to_look_for}
-                      </div>
-                    )}
-                    {question.follow_up && (
-                      <div className="question-detail">
-                        <strong>Follow-up:</strong> {question.follow_up}
-                      </div>
-                    )}
-                    {question.scoring_criteria && (
-                      <div className="question-detail">
-                        <strong>Scoring:</strong> {JSON.stringify(question.scoring_criteria)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                );
-              }) || <p>No questions available for this topic</p>}
+          return (
+          <div key={topicIdx} className={`topic-section ${!isExpanded ? 'collapsed' : ''}`}>
+            <div 
+              className="topic-header-clickable" 
+              onClick={() => toggleTopic(topicIdx)}
+            >
+              <h3 className="topic-header-title">
+                {topic.topic_name || topic.topic || 'Topic'}
+                <span className="topic-question-count">({questionCount} {questionCount === 1 ? 'question' : 'questions'})</span>
+              </h3>
+              <span className={`topic-arrow ${isExpanded ? 'expanded' : ''}`}>
+                ▼
+              </span>
             </div>
+            
+            {isExpanded && (
+              <div className="topic-content">
+                {topic.rationale && <p className="topic-rationale">{topic.rationale}</p>}
+
+                <div className="questions-list">
+                  {topic.questions?.map((question, qIdx) => {
+                    globalQuestionNumber++;
+                    return (
+                    <div key={qIdx} className="question-card">
+                      <div className="question-number">Q{globalQuestionNumber}</div>
+                      <div className="question-content">
+                        <div className="question-text">{question.question || 'No question'}</div>
+                        {question.what_to_look_for && (
+                          <div className="question-detail">
+                            <strong>What to look for:</strong> {question.what_to_look_for}
+                          </div>
+                        )}
+                        {question.follow_up && (
+                          <div className="question-detail">
+                            <strong>Follow-up:</strong> {question.follow_up}
+                          </div>
+                        )}
+                        {question.scoring_criteria && (
+                          <div className="question-detail">
+                            <strong>Scoring:</strong> Should be scored from 1 to 5
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    );
+                  }) || <p>No questions available for this topic</p>}
+                </div>
+              </div>
+            )}
           </div>
         );
         })}
       </div>
     );
+  };
+
+  const toggleAnswer = (challengeIdx) => {
+    setExpandedAnswers(prev => ({
+      ...prev,
+      [challengeIdx]: !prev[challengeIdx]
+    }));
   };
 
   const renderCodeChallenges = () => {
@@ -155,6 +215,12 @@ function InterviewPlanView({ planData, onStartOver }) {
     return (
       <div className="tab-content">
         <h2>Code Challenges</h2>
+
+        {challenges.length > 0 && (
+          <div className="challenge-note">
+            <strong>Note:</strong> Please select one or more challenges for the candidate. Compare the candidate's answers with the solutions provided here.
+          </div>
+        )}
 
         {challenges.length === 0 && !systemDesign && !debugging && (
           <div className="empty-state">
@@ -169,42 +235,123 @@ function InterviewPlanView({ planData, onStartOver }) {
           </div>
         )}
 
-        {challenges.map((challenge, idx) => (
-          <div key={idx} className="challenge-card">
-            <div className="challenge-header">
-              <h3>Challenge {idx + 1}</h3>
-              <span className="challenge-badge">
-                {challenge.metadata?.difficulty || 'Medium'}
-              </span>
-            </div>
+        {challenges.map((challenge, idx) => {
+          const isAnswerExpanded = expandedAnswers[idx] || false;
+          const difficulty = challenge.metadata?.difficulty || 'Medium';
+          const difficultyCapitalized = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
-            <div className="challenge-content">
-              <div className="challenge-section">
-                <h4>Problem Description</h4>
-                <p>{challenge.problem_description || 'No description'}</p>
+          return (
+            <div key={idx} className="challenge-card">
+              <div className="challenge-header">
+                <h3>Challenge {idx + 1}</h3>
+                <span className="challenge-badge">
+                  {difficultyCapitalized}
+                </span>
               </div>
 
-              <div className="challenge-meta">
-                <span>Duration: {challenge.metadata?.duration_minutes || '30'} minutes</span>
-                <span>Stack: {challenge.metadata?.technology_stack?.join(', ') || 'General'}</span>
-              </div>
-
-              {challenge.evaluation_criteria && (
+              <div className="challenge-content">
                 <div className="challenge-section">
-                  <h4>Evaluation Criteria</h4>
-                  <ul>
-                    {Array.isArray(challenge.evaluation_criteria) ?
-                      challenge.evaluation_criteria.map((criterion, i) => (
-                        <li key={i}>{criterion}</li>
-                      )) :
-                      <li>{challenge.evaluation_criteria}</li>
-                    }
-                  </ul>
+                  <h4>Problem Description</h4>
+                  <p>{challenge.problem_description || challenge.problem || 'No description'}</p>
                 </div>
-              )}
+
+                {challenge.input_output_examples && (
+                  <div className="challenge-section">
+                    <h4>Input/Output Examples</h4>
+                    {typeof challenge.input_output_examples === 'string' ? (
+                      <pre className="code-example">{challenge.input_output_examples}</pre>
+                    ) : typeof challenge.input_output_examples === 'object' ? (
+                      <div className="io-examples">
+                        {Array.isArray(challenge.input_output_examples) ? (
+                          challenge.input_output_examples.map((example, i) => (
+                            <div key={i} className="io-example-item">
+                              {typeof example === 'string' ? (
+                                <pre className="code-example">{example}</pre>
+                              ) : (
+                                <div>
+                                  {example.input && <div><strong>Input:</strong> <pre className="code-example">{JSON.stringify(example.input, null, 2)}</pre></div>}
+                                  {example.output && <div><strong>Output:</strong> <pre className="code-example">{JSON.stringify(example.output, null, 2)}</pre></div>}
+                                </div>
+                              )}
+                            </div>
+                          ))
+                        ) : (
+                          <div>
+                            {challenge.input_output_examples.input && (
+                              <div><strong>Input:</strong> <pre className="code-example">{JSON.stringify(challenge.input_output_examples.input, null, 2)}</pre></div>
+                            )}
+                            {challenge.input_output_examples.output && (
+                              <div><strong>Output:</strong> <pre className="code-example">{JSON.stringify(challenge.input_output_examples.output, null, 2)}</pre></div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+                )}
+
+                {challenge.constraints && (
+                  <div className="challenge-section">
+                    <h4>Constraints</h4>
+                    <p>{challenge.constraints}</p>
+                  </div>
+                )}
+
+                <div className="challenge-meta">
+                  <span>Duration: {challenge.metadata?.duration_minutes || '30'} minutes</span>
+                  <span>Stack: {challenge.metadata?.technology_stack?.join(', ') || 'General'}</span>
+                </div>
+
+                {challenge.evaluation_criteria && (
+                  <div className="challenge-section">
+                    <h4>Evaluation Criteria</h4>
+                    <ul>
+                      {Array.isArray(challenge.evaluation_criteria) ?
+                        challenge.evaluation_criteria.map((criterion, i) => (
+                          <li key={i}>{criterion}</li>
+                        )) :
+                        <li>{challenge.evaluation_criteria}</li>
+                      }
+                    </ul>
+                  </div>
+                )}
+
+                {challenge.solution && (
+                  <div className="challenge-answer-section">
+                    <div 
+                      className="challenge-answer-header"
+                      onClick={() => toggleAnswer(idx)}
+                    >
+                      <h4>Answer</h4>
+                      <span className={`answer-arrow ${isAnswerExpanded ? 'expanded' : ''}`}>
+                        ▼
+                      </span>
+                    </div>
+                    {isAnswerExpanded && (
+                      <div className="challenge-answer-content">
+                        {typeof challenge.solution === 'string' ? (
+                          <pre className="code-solution">{challenge.solution}</pre>
+                        ) : (
+                          <div>
+                            {challenge.solution.code && (
+                              <pre className="code-solution">{challenge.solution.code}</pre>
+                            )}
+                            {challenge.solution.explanation && (
+                              <div className="solution-explanation">
+                                <h5>Explanation:</h5>
+                                <p>{challenge.solution.explanation}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {systemDesign && (
           <div className="challenge-card system-design">
@@ -341,72 +488,93 @@ function InterviewPlanView({ planData, onStartOver }) {
             {rubric.topics && rubric.topics.length > 0 && (
               <div className="rubric-section">
                 <h3>Topic Evaluation Criteria</h3>
-                {rubric.topics.map((topic, idx) => (
-                  <div key={idx} className="topic-rubric-card">
-                    <h4 className="topic-rubric-header">
-                      {topic.topic_name || topic.topic || `Topic ${idx + 1}`}
-                    </h4>
+                {rubric.topics.map((topic, idx) => {
+                  const isRubricTopicExpanded = expandedRubricTopics[idx] || false;
+                  
+                  return (
+                    <div key={idx} className={`topic-rubric-card ${!isRubricTopicExpanded ? 'collapsed' : ''}`}>
+                      <div 
+                        className="topic-rubric-header-clickable"
+                        onClick={() => toggleRubricTopic(idx)}
+                      >
+                        <h4 className="topic-rubric-header-title">
+                          {topic.topic_name || topic.topic || `Topic ${idx + 1}`}
+                        </h4>
+                        <span className={`rubric-topic-arrow ${isRubricTopicExpanded ? 'expanded' : ''}`}>
+                          ▼
+                        </span>
+                      </div>
 
-                    {topic.description && (
-                      <p className="topic-description">{topic.description}</p>
-                    )}
+                      {isRubricTopicExpanded && (
+                        <div className="topic-rubric-content">
+                          {topic.description && (
+                            <p className="topic-description">{topic.description}</p>
+                          )}
 
-                    <div className="topic-meta">
-                      <span><strong>Time Allocated:</strong> {topic.allocated_time || topic.allocated_time_minutes || 'N/A'} minutes</span>
-                      <span><strong>Priority:</strong> {topic.priority || 'N/A'}/5</span>
-                    </div>
+                          <div className="topic-meta">
+                            <span><strong>Time Allocated:</strong> {topic.allocated_time || topic.allocated_time_minutes || 'N/A'} minutes</span>
+                            <span>
+                              <strong className="priority-label">Priority:</strong>{' '}
+                              <span className={`priority-value priority-${getPriorityText(topic.priority).toLowerCase().replace('/', '-')}`}>
+                                {getPriorityText(topic.priority)}
+                              </span>
+                            </span>
+                          </div>
 
-                    {topic.scoring_scale && (
-                      <div className="scoring-scale">
-                        <h5>Scoring Scale (1-5)</h5>
-                        <div className="scale-items-vertical">
-                          {Object.entries(topic.scoring_scale).map(([key, value]) => {
-                            // Parse the value if it's an object with description and key_indicators
-                            let description = '';
-                            let indicators = [];
+                          {topic.scoring_scale && (
+                            <div className="scoring-scale">
+                              <h5>Scoring Scale (1-5)</h5>
+                              <div className="scale-items-vertical">
+                                {Object.entries(topic.scoring_scale).map(([key, value]) => {
+                                  // Parse the value if it's an object with description and key_indicators
+                                  let description = '';
+                                  let indicators = [];
 
-                            if (typeof value === 'object' && value !== null) {
-                              description = value.description || '';
-                              indicators = value.key_indicators || value.key_indicator || [];
-                              if (typeof indicators === 'string') {
-                                indicators = [indicators];
-                              }
-                            } else {
-                              description = value;
-                            }
+                                  if (typeof value === 'object' && value !== null) {
+                                    description = value.description || '';
+                                    indicators = value.key_indicators || value.key_indicator || [];
+                                    if (typeof indicators === 'string') {
+                                      indicators = [indicators];
+                                    }
+                                  } else {
+                                    description = value;
+                                  }
 
-                            return (
-                              <div key={key} className="scale-item-detailed">
-                                <div className="scale-score">{key}</div>
-                                <div className="scale-content">
-                                  <div className="scale-description">{description}</div>
-                                  {indicators.length > 0 && (
-                                    <ul className="scale-indicators">
-                                      {indicators.map((indicator, idx) => (
-                                        <li key={idx}>{indicator}</li>
-                                      ))}
-                                    </ul>
-                                  )}
-                                </div>
+                                  return (
+                                    <div key={key} className="scale-item-detailed">
+                                      <div className="scale-score">{key}</div>
+                                      <div className="scale-content">
+                                        <div className="scale-description">{description}</div>
+                                        {indicators.length > 0 && (
+                                          <ul className="scale-indicators">
+                                            {indicators.map((indicator, idx) => (
+                                              <li key={idx}>{indicator}</li>
+                                            ))}
+                                          </ul>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
                               </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
+                            </div>
+                          )}
 
-                    {topic.key_indicators && topic.key_indicators.length > 0 && (
-                      <div className="key-indicators">
-                        <h5>Key Indicators</h5>
-                        <ul>
-                          {topic.key_indicators.map((indicator, i) => (
-                            <li key={i}>{indicator}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                          {topic.key_indicators && topic.key_indicators.length > 0 && (
+                            <div className="key-indicators">
+                              <h5>Key Indicators</h5>
+                              <ul>
+                                {topic.key_indicators.map((indicator, i) => (
+                                  <li key={i}>{indicator}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

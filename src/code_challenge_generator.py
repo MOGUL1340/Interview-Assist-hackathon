@@ -7,8 +7,8 @@ import json
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from project root
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # Initialize OpenAI client
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -48,18 +48,22 @@ def generate_code_challenge(job_details, candidate_experience_level, technology_
         4. Has clear requirements and constraints
         5. Includes edge cases to consider
 
-        Provide:
-        - Problem description (clear and concise)
-        - Input/Output examples
-        - Constraints and requirements
-        - Sample solution (well-commented)
-        - Test cases (including edge cases)
-        - Evaluation criteria (what to look for)
-        - Common mistakes to watch for
-        - Follow-up questions to deepen discussion
-        - Hints (if candidate gets stuck)
+        REQUIRED JSON STRUCTURE:
+        {{
+            "problem_description": "Clear description of the problem",
+            "input_output_examples": "Examples showing input and expected output",
+            "constraints": "Any constraints or requirements",
+            "solution": "Complete, well-commented code solution. This is REQUIRED.",
+            "test_cases": ["List of test cases including edge cases"],
+            "evaluation_criteria": ["What to look for in candidate's solution"],
+            "common_mistakes": ["Common mistakes to watch for"],
+            "follow_up_questions": ["Questions to deepen discussion"],
+            "hints": ["Hints if candidate gets stuck"]
+        }}
 
-        Return as structured JSON.
+        CRITICAL: The "solution" field MUST contain a complete, production-quality code solution.
+        The solution should be well-commented and demonstrate best practices.
+        If the solution is complex, you may provide it as an object with "code" and "explanation" fields.
         """
 
         response = client.chat.completions.create(
@@ -91,25 +95,32 @@ def generate_code_challenge(job_details, candidate_experience_level, technology_
 
 def generate_multiple_challenges(job_details, candidate_experience_level, technology_stack, count=3):
     """
-    Generate multiple code challenges of varying difficulty.
+    Generate multiple code challenges of varying difficulty (medium to hard).
 
     Args:
         job_details (dict): Job details
         candidate_experience_level (str): Experience level
         technology_stack (list): Technologies to use
-        count (int): Number of challenges to generate
+        count (int): Number of challenges to generate (default 3)
 
     Returns:
-        list: List of code challenges
+        list: List of code challenges with solutions
     """
-    logging.info(f"Generating {count} code challenges")
+    logging.info(f"Generating {count} code challenges (medium to hard)")
 
-    difficulties = ["easy", "medium", "hard"]
+    # Generate challenges from medium to hard difficulty
+    difficulties = ["medium", "hard"]
+    durations = [30, 45]
     challenges = []
 
-    for i in range(min(count, len(difficulties))):
-        difficulty = difficulties[i]
-        duration = 20 if difficulty == "easy" else 30 if difficulty == "medium" else 45
+    # Generate at least 2 challenges (medium and hard), up to count
+    num_to_generate = min(count, 3)  # Generate 2-3 challenges
+    
+    for i in range(num_to_generate):
+        # Cycle through medium and hard if generating more than 2
+        difficulty_idx = i % len(difficulties)
+        difficulty = difficulties[difficulty_idx]
+        duration = durations[difficulty_idx]
 
         challenge = generate_code_challenge(
             job_details,
@@ -287,12 +298,12 @@ def create_challenge_suite(job_details, resume_analysis, meeting_insights):
 
         # Check if code challenges are needed
         if meeting_insights.get("insights", {}).get("code_challenge_needed", True):
-            # Generate coding challenges
+            # Generate coding challenges (medium to hard, 2-3 challenges)
             suite["coding_challenges"] = generate_multiple_challenges(
                 job_details,
                 candidate_level,
                 tech_stack,
-                count=2  # Generate 2 challenges to choose from
+                count=3  # Generate 2-3 challenges (medium and hard)
             )
 
             # Generate system design for senior+

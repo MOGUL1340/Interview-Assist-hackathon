@@ -246,27 +246,36 @@ def create_evaluation_sheet(wb, interview_plan, topic_score_ranges):
         weight = (topic.get("priority", 1) / total_weight * 100) if total_weight > 0 else 0
 
         ws.cell(row=row, column=1, value=topic_name)
-        ws.cell(row=row, column=2, value=f"{weight:.1f}%")
+        # Store weight as number (not text with %) for proper formula calculation
+        ws.cell(row=row, column=2, value=weight / 100)  # Store as decimal (0.20 for 20%)
+        ws.cell(row=row, column=2).number_format = '0.0%'  # Format as percentage display
 
         # Score column - auto-calculate average from Questions sheet
         if topic_name in topic_score_ranges:
-            # Use AVERAGE formula to calculate mean score from Questions tab
-            ws.cell(row=row, column=3, value=f"=AVERAGE({topic_score_ranges[topic_name]})")
+            # Use IFERROR with AVERAGE to handle empty cells gracefully
+            ws.cell(row=row, column=3, value=f"=IFERROR(AVERAGE({topic_score_ranges[topic_name]}),\"\")")
         else:
             ws.cell(row=row, column=3, value="")  # Manual entry if no questions
 
         ws.cell(row=row, column=4, value="")  # Notes to be filled
-        # Weighted score: (Score/5 * 100) * Weight% = Score * 20 * Weight%
-        ws.cell(row=row, column=5, value=f"=C{row}/5*B{row}")  # Weighted score formula (as %)
+        # Weighted score: (Score/5) * Weight% * 100 to get percentage from 0 to Weight%
+        # Example: Score=4, Weight=20% -> (4/5) * 0.20 * 100 = 16%
+        # Use IF and ISNUMBER to handle empty score cells properly
+        ws.cell(row=row, column=5, value=f"=IF(OR(ISBLANK(C{row}),NOT(ISNUMBER(C{row}))),\"\",(C{row}/5)*B{row}*100)")
+        ws.cell(row=row, column=5).number_format = '0.0"%"'  # Format as percentage
 
         row += 1
 
     # Total row
     ws.cell(row=row, column=1, value="TOTAL SCORE")
     ws.cell(row=row, column=1).font = Font(bold=True)
-    ws.cell(row=row, column=5, value=f"=SUM(E4:E{row-1})")
+    # Sum all weighted scores - result will be percentage from 0 to 100%
+    # Use IFERROR to handle cases where all scores are empty
+    start_eval_row = 4  # First data row in evaluation sheet
+    ws.cell(row=row, column=5, value=f"=IFERROR(SUM(E{start_eval_row}:E{row-1}),\"\")")
     ws.cell(row=row, column=5).font = Font(bold=True)
     ws.cell(row=row, column=5).fill = PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid")
+    ws.cell(row=row, column=5).number_format = '0.0"%"'  # Format as percentage (0-100%)
 
     row += 2
 

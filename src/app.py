@@ -33,7 +33,8 @@ except ImportError:
 app = Flask(__name__)
 CORS(app)
 
-load_dotenv()
+# Load .env from project root (parent directory)
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -154,8 +155,8 @@ def generate_interview_plan_endpoint():
             "content": "base64_encoded_content"
         },
         "meeting_transcript": "text transcript...",  // alternative to recording
-        "job_requirements": "...",  // or job_title to fetch from manifesto
-        "job_title": "Senior .NET Developer",
+        "job_requirements": "...",
+        "job_position": "Senior .NET Developer",
         "interview_duration_minutes": 30
     }
     """
@@ -219,11 +220,10 @@ def generate_interview_plan_endpoint():
 
         # 3. Get Job Details
         logging.info("Step 3: Processing job details")
-        job_title = data.get('job_title', '')
         job_position = data.get('job_position', '')
 
         job_details = {
-            "title": job_position or job_title or "Position",
+            "title": job_position or "Position",
             "description": data.get('job_requirements', 'No specific requirements provided')
         }
 
@@ -242,13 +242,18 @@ def generate_interview_plan_endpoint():
         if "error" in interview_plan:
             return jsonify({'status': 'error', 'message': interview_plan['error']}), 500
 
-        # 5. Generate Code Challenges
+        # 5. Generate Code Challenges (only if requested)
         logging.info("Step 5: Generating code challenges")
-        code_challenges = create_challenge_suite(
-            job_details,
-            resume_analysis,
-            {'insights': meeting_insights}
-        )
+        include_code_challenges = data.get('include_code_challenges', False)
+        if include_code_challenges:
+            code_challenges = create_challenge_suite(
+                job_details,
+                resume_analysis,
+                {'insights': meeting_insights}
+            )
+        else:
+            code_challenges = {"coding_challenges": [], "system_design": None, "debugging_challenge": None}
+            logging.info("Code challenges skipped - not requested by user")
 
         # 6. Generate Excel File
         logging.info("Step 6: Generating Excel file")

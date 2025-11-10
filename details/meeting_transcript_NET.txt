@@ -1,0 +1,42 @@
+Project Manager: Hi Sarah, thanks for the call. Let's discuss what you need for this position.
+
+Client (Sarah): Sure. We're looking for a senior .NET developer for our fintech platform. Strong C# skills, .NET Core experience - we're on .NET 6 and 7, moving to .NET 8.
+
+Project Manager: What about architecture?
+
+Client (Sarah): Microservices is crucial. Actually, we need someone who can step into an architect role. We're migrating from monolithic to microservices, so that experience is really valuable.
+
+Project Manager: Cloud platform?
+
+Client (Sarah): Azure. We use App Services, Functions, Service Bus, Cosmos DB. Need someone who really knows Azure.
+
+Project Manager: Team leadership?
+
+Client (Sarah): Yes, we have 6-8 developers. Need technical leadership - code reviews, mentoring, setting standards.
+
+Project Manager: Domain experience?
+
+Client (Sarah): Fintech would be great, but high-volume systems experience works - e-commerce, anything with high transaction volume.
+
+Project Manager: Experience level?
+
+Client (Sarah): Senior, 10+ years. Someone who's seen different projects and architectures.
+
+Project Manager: Databases and APIs?
+
+Client (Sarah): SQL Server mainly, but also PostgreSQL. Strong RESTful API experience - we're building high-load APIs.
+
+Project Manager: DevOps?
+
+Client (Sarah): Yes, Azure DevOps and CI/CD. We want to improve deployment processes.
+
+Project Manager: Interview duration?
+
+Client (Sarah): 45 minutes. Cover technical skills, architecture thinking, maybe a coding challenge.
+
+Project Manager: Perfect. So senior .NET developer, 10+ years, C# and .NET Core, microservices, Azure, architect experience, team leadership, high-volume systems, SQL Server, PostgreSQL, RESTful APIs, CI/CD. Sound right?
+
+Client (Sarah): Exactly. Architect experience is key - we need someone who can design solutions, not just code them.
+
+Project Manager: Great. I'll prepare the interview plan. Thanks, Sarah.
+
