@@ -47,8 +47,8 @@ def analyze_resume(resume_text):
     ]
 
     messages = [
-        {"role": "system", "content": "You are an expert resume analyzer. Your task is to extract key information, identify gaps, and spot anomalies in resumes."},
-        {"role": "user", "content": f"Analyze the following resume and provide a structured analysis similar to the examples below.\n\nFew-shot examples:\n{json.dumps(few_shot_examples, indent=2)}\n\nResume to analyze:\n{resume_text}\n\nProvide your analysis in the same JSON format as the examples."}
+        {"role": "system", "content": "You are an expert resume analyzer. Your task is to extract key information, identify gaps, and spot anomalies in resumes. Always return your analysis as a valid JSON object."},
+        {"role": "user", "content": f"Analyze the following resume and provide a structured analysis similar to the examples below.\n\nFew-shot examples:\n{json.dumps(few_shot_examples, indent=2)}\n\nResume to analyze:\n{resume_text}\n\nProvide your analysis in the same JSON format as the examples. Return the result as a valid JSON object."}
     ]
 
     try:
@@ -56,13 +56,19 @@ def analyze_resume(resume_text):
             model="gpt-4o-mini",
             messages=messages,
             temperature=0.2,
-            max_tokens=1000
+            max_tokens=1000,
+            response_format={"type": "json_object"}
         )
-        analysis = json.loads(response.choices[0].message.content)
-        logging.info(f"Resume analysis completed. Result: {json.dumps(analysis, indent=2)}")
+
+        response_content = response.choices[0].message.content
+        logging.info(f"Raw response from GPT (first 500 chars): {response_content[:500]}")
+
+        analysis = json.loads(response_content)
+        logging.info(f"Resume analysis completed. Result keys: {list(analysis.keys())}")
         return analysis
     except json.JSONDecodeError as e:
         logging.error(f"Failed to parse the analysis: {str(e)}")
+        logging.error(f"Response content was: {response.choices[0].message.content if 'response' in locals() else 'No response'}")
         return {"error": f"Failed to parse the analysis: {str(e)}"}
     except Exception as e:
         logging.error(f"Unexpected error: {str(e)}")
@@ -220,11 +226,6 @@ def process_resume(resume_text, job_details=None):
         # Check for errors in the structured data schema generation
         if isinstance(structured_data_schema, dict) and "error" in structured_data_schema:
             return {"error": structured_data_schema["error"]}
-        
-        if job_details:
-            result["job_details"] = job_details
-                
-            return result
 
         # Combine results into a final output
         result = {

@@ -1,0 +1,22 @@
+Manual QA Engineer (Senior)
+Employment type: Full-time
+We are seeking a highly skilled Senior Manual QA Engineer to lead quality assurance activities for enterprise-level immersive applications (VR/AR/Web) running on browser, tablet and mobile devices. 
+The ideal candidate is detail-oriented, process-driven, and experienced in testing complex digital ecosystems with multiple integrations.
+Key Responsibilities:
+Develop and execute comprehensive test plans, checklists, and regression suites.
+Ensure cross-platform functionality (Web, iOS, Android, Meta Quest).
+Validate complex UI/UX flows, API responses, and data integrity.
+Coordinate test efforts for releases, manage bug triage, and support UAT.
+Mentor junior QA team members and ensure testing best practices.
+Work closely with development and product teams to ensure release readiness.
+Requirements:
+4+ years of experience in manual QA for web or mobile apps.
+Strong knowledge of QA methodologies, SDLC, and bug life cycle.
+Experience testing CMS-based systems and digital content workflows.
+Familiarity with tools like Jira, Confluence, TestRail, and Postman.
+Analytical mindset, excellent communication skills, and attention to detail.
+Upper-Intermediate or higher English.
+Nice to have:
+Experience with XR/VR/AR projects or 3D visualization systems.
+Familiarity with Charles Proxy or other proxy-like tools
+Basic understanding of automation testing or CI/CD pipelines.

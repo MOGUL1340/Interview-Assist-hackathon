@@ -1,35 +1,40 @@
 import React, { useState } from 'react';
-import UserInfoForm from './UserInfoForm';
-import Interview from './Interview';
-import EndCallMessage from './EndCallMessage';
+import InterviewPrepForm from './InterviewPrepForm';
+import InterviewPlanView from './InterviewPlanView';
 import LoadingSpinner from './LoadingSpinner';
 import './App.css';
 
 function App() {
-  const [step, setStep] = useState('gatherInfo');
-  const [userInfo, setUserInfo] = useState(null);
+  const [step, setStep] = useState('prepForm');
+  const [planData, setPlanData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleUserInfoSubmit = (info) => {
-    setIsLoading(true);
-    setUserInfo(info);
-    // Simulate a delay or perform any async operations
-    setTimeout(() => {
-      setIsLoading(false);
-      setStep('interview');
-    }, 2000);
+  const handlePrepFormSubmit = (data) => {
+    setIsLoading(false);
+    setPlanData(data);
+    setStep('viewPlan');
   };
 
-  const handleEndCall = () => {
-    setStep('endCall');
+  const handleStartOver = () => {
+    setPlanData(null);
+    setStep('prepForm');
   };
 
   return (
     <div className="App">
       {isLoading && <LoadingSpinner />}
-      {step === 'gatherInfo' && <UserInfoForm onSubmit={handleUserInfoSubmit} setIsLoading={setIsLoading} />}
-      {step === 'interview' && <Interview userInfo={userInfo} onEndCall={handleEndCall} />}
-      {step === 'endCall' && <EndCallMessage />}
+      {step === 'prepForm' && (
+        <InterviewPrepForm
+          onSubmit={handlePrepFormSubmit}
+          setIsLoading={setIsLoading}
+        />
+      )}
+      {step === 'viewPlan' && planData && (
+        <InterviewPlanView
+          planData={planData}
+          onStartOver={handleStartOver}
+        />
+      )}
     </div>
   );
 }
