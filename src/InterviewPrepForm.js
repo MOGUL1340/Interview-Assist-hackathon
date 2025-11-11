@@ -8,7 +8,6 @@ function InterviewPrepForm({ onSubmit, setIsLoading }) {
     meetingRecording: null,
     meetingTranscript: '',
     jobPosition: '',
-    jobGrade: 'Senior',
     jobRequirements: '',
     interviewDuration: 60,
     useTranscript: false,
@@ -165,7 +164,6 @@ function InterviewPrepForm({ onSubmit, setIsLoading }) {
               name="candidateName"
               value={formData.candidateName}
               onChange={handleInputChange}
-              placeholder="John Doe"
               required
             />
             {errors.candidateName && <div className="error">{errors.candidateName}</div>}
@@ -238,25 +236,6 @@ function InterviewPrepForm({ onSubmit, setIsLoading }) {
         <section className="form-section">
           <h2>Job Information</h2>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="jobGrade">Grade/Level:</label>
-              <select
-                id="jobGrade"
-                name="jobGrade"
-                value={formData.jobGrade}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="Junior">Junior</option>
-                <option value="Middle">Middle</option>
-                <option value="Senior">Senior</option>
-                <option value="Lead">Lead</option>
-                <option value="Principal">Principal</option>
-              </select>
-            </div>
-          </div>
-
           <div className="form-group">
             <label htmlFor="jobPosition">Position Name (displayed in interview plan):</label>
             <input
@@ -265,7 +244,6 @@ function InterviewPrepForm({ onSubmit, setIsLoading }) {
               name="jobPosition"
               value={formData.jobPosition}
               onChange={handleInputChange}
-              placeholder="Senior Manual QA Engineer"
               required
             />
             {errors.jobPosition && <div className="error">{errors.jobPosition}</div>}
@@ -279,7 +257,6 @@ function InterviewPrepForm({ onSubmit, setIsLoading }) {
               value={formData.jobRequirements}
               onChange={handleInputChange}
               rows="6"
-              placeholder="Describe the job requirements, responsibilities, and key qualifications...&#10;&#10;Example:&#10;- 5+ years of experience in software development&#10;- Strong knowledge of React and TypeScript&#10;- Experience with REST APIs and microservices&#10;- Leadership and team management skills"
               required
             />
             {errors.jobData && <div className="error">{errors.jobData}</div>}
